@@ -40,4 +40,22 @@ class massSpringDamper():
     plt.subplot(212)
     plt.plot(tGrid, vA)
     print(xA[0:10])
+
+class InvertedPendulum:
+    def __init__(self, m, l, g, k) -> None:
+        self.m, self.l, self.g, self.k = m, l, g, k
+
+    def thetaDDot(self, Theta, Tau):
+        return 1.5*self.g/self.l*np.sin(Theta) - Tau*3/self.m/self.l**2
+    
+    def DynSS(self, y, t,Tau):
+        Theta, Omega = y
+        dydt = [Omega, -1.5*self.g/self.l*np.sin(Theta) + 3*Tau/self.m/self.l**2 - 3*self.k*Omega/self.m/self.l**2]
+        return dydt
+    
+    def nextState(self, y,Tau, Ts):
+        y0 = y
+        sol = sc.integrate.odeint(self.DynSS, y0, [0, Ts], args=(Tau,))
+        return sol[1,:]
+
     
