@@ -26,10 +26,10 @@ class massSpringDamper():
     vA = [yC[1]]
     tGrid = np.arange(tI, tF, tSamp)
     for t in tGrid[1:len(tGrid)]:
-      #print(t)
+      
       u = self.input(yC, t)
       yN = sc.integrate.odeint(self.dyn, yC, [t-tSamp,t], args=(u,))
-      #print('yN',yN)
+      
       xA.append(yN[yN.shape[0]-1,0])
       vA.append(yN[yN.shape[0]-1,1])
       yC = yN[yN.shape[0]-1,:]
