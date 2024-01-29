@@ -53,9 +53,61 @@ class InvertedPendulum:
         dydt = [Omega, -1.5*self.g/self.l*np.sin(Theta) + 3*Tau/self.m/self.l**2 - 3*self.k*Omega/self.m/self.l**2]
         return dydt
     
+    def AMatt(self, Theta):
+       mat = np.array([[0, 1], [-3/2*self.g/self.l*np.cos(Theta), -3*self.k/self.m/self.l**2]])
+       return mat
+    
+    def BMatt(self):
+       mat = np.array([[0], [3/self.m/self.l**2]])
+       return mat
+    
+    def DMatt(self, Theta):
+       mat = np.array([[0], [1.5*self.g/self.l*np.cos(Theta)*Theta]])
+       return mat
+
     def nextState(self, y,Tau, Ts):
         y0 = y
         sol = sc.integrate.odeint(self.DynSS, y0, [0, Ts], args=(Tau,))
         return sol[1,:]
 
-    
+class DoubleMassSpringDamper():
+    def __init__(self, m1, m2, b, c1, c2, k, isDisturbance = False) -> None:
+        self.m1, self.m2, self.b, self.c1, self.c2, self.k, self.isDisturbance =  m1, m2, b, c1, c2, k, isDisturbance
+
+        self.AMat = np.array([[0, 0, 1, 0],
+                     [0, 0 ,0, 1],
+                     [-k/m1, -k/m1, -(b+c1)/m1, b/m1],
+                     [k/m2, -k/m2, b/m2, -(b+c2)/m2]]).reshape(4,4)
+        
+        self.BMat = np.array([0, 0, 1/m1, 0]).reshape(4,1)
+
+        self.CMat = np.array([-1, 1, 0, 0])
+
+        self.mu = 0.1
+
+        self.g = 9.86  
+
+    def DynSS(self, y, t, F):
+        x1, x2, x1Dot, x2Dot = y
+
+        dydt = np.dot(self.AMat, np.array(y).reshape(4,1)) + np.dot(self.BMat, F) + self.disturbance(y, t)
+        # print('from DynSS', 'a', np.dot(self.AMat, np.array(y).reshape(4,1)), 'b', np.dot(self.BMat, F), 'c', self.disturbance(y, t))
+        # print('dydt',dydt)
+        # print('DynSS over')
+        dydt = dydt.reshape(1,4).tolist()
+        return dydt[0]
+
+    def disturbance(self, y, t):
+        x1, x2, x1Dot, x2Dot = y        
+        disturb = [0, 0, np.sign(x1Dot)*self.m1*self.g, np.sign(x2Dot)*self.m2*self.g]*self.isDisturbance
+        disturb = np.array(disturb).reshape(4,1)
+        return disturb
+
+    def nextState(self, y, F, Ts):
+        y0 = y
+        sol = sc.integrate.odeint(self.DynSS, y0, [0, Ts], args=(F,))
+        return sol[1,:]    
+
+       
+       
+
