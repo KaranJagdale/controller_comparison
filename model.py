@@ -76,7 +76,7 @@ class DoubleMassSpringDamper():
 
         self.AMat = np.array([[0, 0, 1, 0],
                      [0, 0 ,0, 1],
-                     [-k/m1, -k/m1, -(b+c1)/m1, b/m1],
+                     [-k/m1, k/m1, -(b+c1)/m1, b/m1],
                      [k/m2, -k/m2, b/m2, -(b+c2)/m2]]).reshape(4,4)
         
         self.BMat = np.array([0, 0, 1/m1, 0]).reshape(4,1)
@@ -91,17 +91,21 @@ class DoubleMassSpringDamper():
         x1, x2, x1Dot, x2Dot = y
 
         dydt = np.dot(self.AMat, np.array(y).reshape(4,1)) + np.dot(self.BMat, F) + self.disturbance(y, t)
-        # print('from DynSS', 'a', np.dot(self.AMat, np.array(y).reshape(4,1)), 'b', np.dot(self.BMat, F), 'c', self.disturbance(y, t))
+        #print('from DynSS', 'a', np.dot(self.AMat, np.array(y).reshape(4,1)), 'b', np.dot(self.BMat, F), 'c', self.disturbance(y, t))
+        # print('from DynSS', 'BMat - ', self.BMat, 'F', F, 'b', np.dot(self.BMat, F))
         # print('dydt',dydt)
         # print('DynSS over')
         dydt = dydt.reshape(1,4).tolist()
         return dydt[0]
 
     def disturbance(self, y, t):
-        x1, x2, x1Dot, x2Dot = y        
-        disturb = [0, 0, np.sign(x1Dot)*self.m1*self.g, np.sign(x2Dot)*self.m2*self.g]*self.isDisturbance
-        disturb = np.array(disturb).reshape(4,1)
-        return disturb
+        if self.isDisturbance:         
+          x1, x2, x1Dot, x2Dot = y        
+          disturb = [0, 0, -np.sign(x1Dot)*self.mu*self.g, -np.sign(x2Dot)*self.mu*self.g]*self.isDisturbance
+          disturb = np.array(disturb).reshape(4,1)
+          return disturb
+        else:
+           return 0
 
     def nextState(self, y, F, Ts):
         y0 = y
