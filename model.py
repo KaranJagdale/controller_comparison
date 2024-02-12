@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sc
 import matplotlib.pyplot as plt
-
+import random
 class massSpringDamper():
   def __init__(self, m, c, k):
     self.m, self.c, self.k = m,c,k
@@ -42,15 +42,18 @@ class massSpringDamper():
     print(xA[0:10])
 
 class InvertedPendulum:
-    def __init__(self, m, l, g, k) -> None:
-        self.m, self.l, self.g, self.k = m, l, g, k
+    def __init__(self, m, l, g, k, isDisturbance) -> None:
+        self.m, self.l, self.g, self.k, self.isDisturbance = m, l, g, k, isDisturbance
 
     def thetaDDot(self, Theta, Tau):
         return 1.5*self.g/self.l*np.sin(Theta) - Tau*3/self.m/self.l**2
     
     def DynSS(self, y, t,Tau):
         Theta, Omega = y
-        dydt = [Omega, -1.5*self.g/self.l*np.sin(Theta) + 3*Tau/self.m/self.l**2 - 3*self.k*Omega/self.m/self.l**2]
+        distMag = 2
+        disturb = random.random()*distMag - distMag/2
+        disturb = disturb*self.isDisturbance
+        dydt = [Omega, -1.5*self.g/self.l*np.sin(Theta) + 3*(Tau + disturb)/self.m/self.l**2 - 3*self.k*Omega/self.m/self.l**2]
         return dydt
     
     def AMatt(self, Theta):
