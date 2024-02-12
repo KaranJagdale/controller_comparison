@@ -18,6 +18,7 @@ where,
 The measurement is assumed to be the angle of pendulum. The controller goal is to control the pendulum at the upright position (unstable equilibrium equilibrium). We first present the results from PID controller and then for state feedback controller assuming full state is available.
 
 **PID controller** - PID successfully completes the objective only with the P gain as we are trying to control the pendulum at its equibrium point (Generaly I gain is required when when we try to control the system at a non-equibrilium point). The error for PID is defined as $error = \pi - \theta$. Following Gif shows the performance of the PID.
+![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_PID.gif)
 
 
 
