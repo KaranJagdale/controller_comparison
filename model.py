@@ -42,16 +42,19 @@ class massSpringDamper():
     print(xA[0:10])
 
 class InvertedPendulum:
-    def __init__(self, m, l, g, k, isDisturbance) -> None:
+    def __init__(self, m, l, g, k, isDisturbance, procNoiseCov, mesNoiseCov) -> None:
         self.m, self.l, self.g, self.k, self.isDisturbance = m, l, g, k, isDisturbance
+        self.CMatt = np.array([[1,0]])
+        self.DMatt = np.array([[0]])
+        self.procNoiseCov = procNoiseCov
+        self.mesNoiseCov = mesNoiseCov
 
     def thetaDDot(self, Theta, Tau):
         return 1.5*self.g/self.l*np.sin(Theta) - Tau*3/self.m/self.l**2
     
     def DynSS(self, y, t,Tau):
         Theta, Omega = y
-        distMag = 2
-        disturb = random.random()*distMag - distMag/2
+        disturb = np.random.normal(0, self.procNoiseCov, 1)[0]
         disturb = disturb*self.isDisturbance
         dydt = [Omega, -1.5*self.g/self.l*np.sin(Theta) + 3*(Tau + disturb)/self.m/self.l**2 - 3*self.k*Omega/self.m/self.l**2]
         return dydt
@@ -64,9 +67,8 @@ class InvertedPendulum:
        mat = np.array([[0], [3/self.m/self.l**2]])
        return mat
     
-    def DMatt(self, Theta):
-       mat = np.array([[0], [1.5*self.g/self.l*np.cos(Theta)*Theta]])
-       return mat
+    def measurement(self,state):
+       return np.dot(self.CMatt, state) + np.random.normal(0, self.mesNoiseCov, 1)[0]
 
     def nextState(self, y,Tau, Ts):
         y0 = y
