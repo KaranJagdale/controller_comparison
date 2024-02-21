@@ -52,10 +52,10 @@ class InvertedPendulum:
     def thetaDDot(self, Theta, Tau):
         return 1.5*self.g/self.l*np.sin(Theta) - Tau*3/self.m/self.l**2
     
-    def DynSS(self, y, t,Tau):
+    def DynSS(self, y, t,Tau, isDisturb):
         Theta, Omega = y
         disturb = np.random.normal(0, self.procNoiseCov, 1)[0]
-        disturb = disturb*self.isDisturbance
+        disturb = disturb*(self.isDisturbance * isDisturb)
         dydt = [Omega, -1.5*self.g/self.l*np.sin(Theta) + 3*(Tau + disturb)/self.m/self.l**2 - 3*self.k*Omega/self.m/self.l**2]
         return dydt
     
@@ -70,9 +70,9 @@ class InvertedPendulum:
     def measurement(self,state):
        return np.dot(self.CMatt, state) + np.random.normal(0, self.mesNoiseCov, 1)[0]
 
-    def nextState(self, y,Tau, Ts):
+    def nextState(self, y,Tau, Ts, isDisturb = 1):
         y0 = y
-        sol = sc.integrate.odeint(self.DynSS, y0, [0, Ts], args=(Tau,))
+        sol = sc.integrate.odeint(self.DynSS, y0, [0, Ts], args=(Tau, isDisturb))
         return sol[1,:]
 
 class DoubleMassSpringDamper():
