@@ -1,4 +1,4 @@
-## Comparing controllers
+## Comparing controllers-Inverted Pendulum Control
 
 Here, I am experimenting with an **inverted pendulum** and a **double mass spring damper** and comparing the performance of varioud controllers on these systems.
 The models are stored in [model.py](https://github.com/KaranJagdale/controller_comparison/blob/master/model.py). 
@@ -31,12 +31,14 @@ With this process and noise disturbance and actuator saturation, we get followin
 
 ![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_PID_mes.gif)
 
-**State Feedback Controller** - As a start, state feedback controller is implemented assumming the full state is available without any noise. Using scipy package, we placed the poles of closed loop system in the left-half plane and obtained the controller. The original system in non-linear and thus is linearised in every iteration to obtain the state matrices $(A,B)$. Following anination shows the performance of the state feedback controller. 
+**State Feedback Controller** - As a start, state feedback controller is implemented assumming the full state is available without any noise. Using scipy package, we placed the poles of closed loop system in the left-half plane and obtained the controller. The original system in non-linear and thus is linearised in every iteration to obtain the state matrices $(A,B)$. Following anination shows the performance of the state feedback controller for closed loop poles being $[-10, -25]$. 
 
 ![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_SF.gif)
 
-Note that, the target state is achieved way faster than the PID and there is no overshoot. However, we are using full state information for the state feedback controller which is not usually available in real-life scenarios. Also, we haven't put any bound on the controller input which is unrealistic, as the actuators with which we will implement the control will have some limitation on there output. As we go along, we will remove these assumptions and design a more realistic controller that can be implemented on a real system. 
+Note that, the target state is achieved way faster than the PID and there is no overshoot. However, we are using full state information for the state feedback controller which is not usually available in real-life scenarios. Also, we haven't put any bound on the controller input which is unrealistic, as the actuators with which we will implement the control will have some limitation on there output. 
 
+Now, lets drop the assumption of full state being available for the state feedback control. We make same assumptions as in the later half of the PID section to make the model more realistic. To construct the state feedback controller, we need to estimate the state. I am using Extended Kalman Filter (EKF) to estimate the state vector. The animation below shows the performance of the state feedback controller (closed loop poles are $[-10, 25]$) with EKF.
+![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_SF_KF.gif)
 
 
 
