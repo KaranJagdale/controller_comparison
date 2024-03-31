@@ -75,6 +75,12 @@ class InvertedPendulum:
         y0 = y
         sol = sc.integrate.odeint(self.DynSS, y0, [0, Ts], args=(Tau, disturb))
         return sol[1,:]
+    
+    def getDiscreteDynMatrix(self, Theta, sim_dt):
+       d_syst = sc.signal.cont2discrete((self.AMatt(Theta), self.BMatt(), self.CMatt, self.DMatt), sim_dt)
+       Phi, Gamma, C_d = d_syst[0], d_syst[1], d_syst[2]
+       return Phi, Gamma, C_d
+
 
 class DoubleMassSpringDamper():
     def __init__(self, m1, m2, b, c1, c2, k, isDisturbance = False) -> None:
