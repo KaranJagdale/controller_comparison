@@ -52,12 +52,17 @@ class InvertedPendulum:
     def thetaDDot(self, Theta, Tau):
         return 1.5*self.g/self.l*np.sin(Theta) - Tau*3/self.m/self.l**2
     
-    def DynSS(self, y, t,Tau,disturb):
+    def DynSS(self, y, t,Tau,disturb, isPrint = False):
         Theta, Omega = y
         # disturb = np.random.normal(0, self.procNoiseCov, 1)[0]
         # disturb = disturb*(self.isDisturbance * isDisturb)
         #print(disturb)
         dydt = [Omega, -1.5*self.g/self.l*np.sin(Theta) + 3*(Tau + disturb)/self.m/self.l**2 - 3*self.k*Omega/self.m/self.l**2]
+        if isPrint:
+           print(dydt)
+           print('fterm - ', -1.5*self.g/self.l*np.sin(Theta))
+           print('sterm - ', 3*(Tau + disturb)/self.m/self.l**2)
+           print('tterm - ', 3*self.k*Omega/self.m/self.l**2)
         return dydt
     
     def AMatt(self, Theta):
@@ -75,6 +80,12 @@ class InvertedPendulum:
         y0 = y
         sol = sc.integrate.odeint(self.DynSS, y0, [0, Ts], args=(Tau, disturb))
         return sol[1,:]
+    
+    def getDiscreteDynMatrix(self, Theta, sim_dt):
+       d_syst = sc.signal.cont2discrete((self.AMatt(Theta), self.BMatt(), self.CMatt, self.DMatt), sim_dt)
+       Phi, Gamma, C_d = d_syst[0], d_syst[1], d_syst[2]
+       return Phi, Gamma, C_d
+
 
 class DoubleMassSpringDamper():
     def __init__(self, m1, m2, b, c1, c2, k, isDisturbance = False) -> None:
