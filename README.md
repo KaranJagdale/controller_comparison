@@ -39,7 +39,7 @@ We can bring more relallism by simulating the disturbance to the pendulum dynami
 Then, I drop the assumption of full state being available for the state feedback control. We make same assumptions (Of the measurements containing noise) as in the later half of the PID section to make the model more realistic. The state is estimated using the Extended Kalman Filter for constructing the state feedback controller. Again the model is simulated with closed loop poles at $[-10, 25]$) along with EKF.
 
 Similar to the case if PID controller, I further introduced a randomly varying disturbance in the dynamics of the pendulum and again simulated the system. Below table consists the simulation results.
-| PID             |  with measurement noise | with measurement noise and process disturbance (need rework)|
+| State Feedback with full state available             |  with EKf and measurement being noisy | with EKF, measurement noise and process disturbance (need rework)|
 |-------------------------|-------------------------|-------------------------|
 |![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_SF.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_SF_KF.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/State_feedback_ekf.gif)
 
