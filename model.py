@@ -52,12 +52,17 @@ class InvertedPendulum:
     def thetaDDot(self, Theta, Tau):
         return 1.5*self.g/self.l*np.sin(Theta) - Tau*3/self.m/self.l**2
     
-    def DynSS(self, y, t,Tau,disturb):
+    def DynSS(self, y, t,Tau,disturb, isPrint = False):
         Theta, Omega = y
         # disturb = np.random.normal(0, self.procNoiseCov, 1)[0]
         # disturb = disturb*(self.isDisturbance * isDisturb)
         #print(disturb)
         dydt = [Omega, -1.5*self.g/self.l*np.sin(Theta) + 3*(Tau + disturb)/self.m/self.l**2 - 3*self.k*Omega/self.m/self.l**2]
+        if isPrint:
+           print(dydt)
+           print('fterm - ', -1.5*self.g/self.l*np.sin(Theta))
+           print('sterm - ', 3*(Tau + disturb)/self.m/self.l**2)
+           print('tterm - ', 3*self.k*Omega/self.m/self.l**2)
         return dydt
     
     def AMatt(self, Theta):
