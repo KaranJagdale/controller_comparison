@@ -17,8 +17,7 @@ where,
 
 The measurement is assumed to be the angle of pendulum. The controller goal is to control the pendulum at the upright position (unstable equilibrium equilibrium). We first present the results from PID controller and then for state feedback controller assuming full state is available.
 
-**PID controller** - PID successfully completes the objective only with the P gain as we are trying to control the pendulum at its equibrium point (Generaly I gain is required when when we try to control the system at a non-equibrilium point). The error for PID is defined as $error = \pi - \theta$. Following Gif shows the performance of the PID. For this particular aanimation, I have used $K_p = 10$.
-![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_PID.gif)
+**PID controller** - PID successfully completes the objective only with the P gain as we are trying to control the pendulum at its equibrium point (Generaly I gain is required when when we try to control the system at a non-equibrilium point). The error for PID is defined as $error = \pi - \theta$. Gif below shows the performance of the PID. For this particular aanimation, I have used $K_p = 10$.
 
 But in real life the sensors used for the measurements are noisy. In this particular case of inverted pendulum, angle sensor is used to obtain the measurement $\theta$. Thus the output we get from the sensor is given by:
 $$\theta = \theta_a + \nu$$
@@ -27,18 +26,23 @@ With $\nu \sim \mathcal{N}(0, 0.2)$, i.e., distributed as a Normal distribution 
 
 Also, there can be some torque disturbance to the system for example if he platform at which the pendulum is on is shaking etc. We model this disturbance in torque again using the Normal distribution with mean 0 and standard deviation equal to $2 Nm$.  
 Moreover, in real life the actuator (motor in our case) have limitations on their output, here we assume the motor can give maximum $10 N-m$ of torque.
-With this process and noise disturbance and actuator saturation, we get following result.
+We create one simulation with process and noise and actuator saturation.
 
-![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_PID_mes.gif)
+We can bring more relallism by simulating the disturbance to the pendulum dynamics like if the pendulum is kept outside where there is significant wind. We model this disturbance again using the normal distribution (not claiming this is accurate for wind modeling but definitely a good starting point). We model the disturbance torqu with $\beta \sim \mathcal{N}(0, 1) Nm$. We present the results altogether below for all the cases.
 
-**State Feedback Controller** - As a start, state feedback controller is implemented assumming the full state is available without any noise. Using scipy package, we placed the poles of closed loop system in the left-half plane and obtained the controller. The original system in non-linear and thus is linearised in every iteration to obtain the state matrices $(A,B)$. Following anination shows the performance of the state feedback controller for closed loop poles being $[-10, -25]$. 
+| PID             |  with measurement noise | with measurement noise and process disturbance (need rework)|
+|-------------------------|-------------------------|-------------------------|
+|![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_PID.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_PID_mes.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/PID.gif)|
 
-![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_SF.gif)
+**State Feedback Controller** - As a start, state feedback controller is implemented assumming the full state is available without any noise. Using scipy package, the poles of the closed loop system are placed in the open left-half plane and obtained the controller. The original system in non-linear and thus is linearised in every iteration to obtain the state matrices $(A,B)$. Following anination shows the performance of the state feedback controller for closed loop poles being $[-10, -25]$. 
 
-Note that, the target state is achieved way faster than the PID and there is no overshoot. However, we are using full state information for the state feedback controller which is not usually available in real-life scenarios. Also, we haven't put any bound on the controller input which is unrealistic, as the actuators with which we will implement the control will have some limitation on there output. 
+Then, I drop the assumption of full state being available for the state feedback control. We make same assumptions (Of the measurements containing noise) as in the later half of the PID section to make the model more realistic. The state is estimated using the Extended Kalman Filter for constructing the state feedback controller. Again the model is simulated with closed loop poles at $[-10, 25]$) along with EKF.
 
-Now, lets drop the assumption of full state being available for the state feedback control. We make same assumptions as in the later half of the PID section to make the model more realistic. To construct the state feedback controller, we need to estimate the state. I am using Extended Kalman Filter (EKF) to estimate the state vector. The animation below shows the performance of the state feedback controller (closed loop poles are $[-10, 25]$) with EKF.
-![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_SF_KF.gif)
+Similar to the case if PID controller, I further introduced a randomly varying disturbance in the dynamics of the pendulum and again simulated the system. Below table consists the simulation results.
+| PID             |  with measurement noise | with measurement noise and process disturbance (need rework)|
+|-------------------------|-------------------------|-------------------------|
+|![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_SF.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_SF_KF.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/State_feedback_ekf.gif)
+
 
 
 
