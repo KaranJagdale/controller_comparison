@@ -1,9 +1,9 @@
 ## Comparing controllers-Inverted Pendulum Control
 
 Here, I am experimenting with an **inverted pendulum** and a **double mass spring damper** and comparing the performance of varioud controllers on these systems.
-The models are stored in [model.py](https://github.com/KaranJagdale/controller_comparison/blob/master/model.py). 
+The models are stored in [model.py](https://github.com/KaranJagdale/controller_comparison/blob/master/scripts/model.py). 
 
-**Inverted pendulum** - We analyze this model in the file [main.ipynb](https://github.com/KaranJagdale/controller_comparison/blob/master/main.ipynb). It is modeled as a rod of uniform mass distribution hinged about a point. The equations of motion are given by:
+**Inverted pendulum** - We analyze this model in the file [main.ipynb](https://github.com/KaranJagdale/controller_comparison/blob/master/scripts/main.ipynb). It is modeled as a rod of uniform mass distribution hinged about a point. The equations of motion are given by:
 $$\dot{\theta} = \omega $$
 $$\dot{\omega} = \frac{3 g}{2 l} sin(\theta) + \frac{3 (\tau + \beta)}{m l^2} - \frac{3 k \omega}{m l^2}$$
 where,
@@ -32,7 +32,7 @@ We can bring more relallism by simulating the disturbance to the pendulum dynami
 
 | PID             |  with measurement noise | with measurement noise and process disturbance|
 |-------------------------|-------------------------|-------------------------|
-|![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_PID.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_PID_mes.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/PID.gif)|
+|![](https://github.com/KaranJagdale/controller_comparison/blob/master/result/Invpend_PID.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/result/Invpend_PID_mes.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/result/PID.gif)|
 
 **State Feedback Controller** - As a start, state feedback controller is implemented assumming the full state is available without any noise. Using scipy package, the poles of the closed loop system are placed in the open left-half plane and obtained the controller. The original system in non-linear and thus is linearised in every iteration to obtain the state matrices $(A,B)$. Following anination shows the performance of the state feedback controller for closed loop poles being $[-10, -25]$. 
 
@@ -41,7 +41,7 @@ Then, I drop the assumption of full state being available for the state feedback
 Similar to the case if PID controller, I further introduced a randomly varying disturbance in the dynamics of the pendulum and again simulated the system. Below table consists the simulation results.
 | State Feedback with full state available (LQR)            |  with EKf and measurement being noisy (LQG) | with EKF, measurement noise and process disturbance (LQG with process disturbance)|
 |-------------------------|-------------------------|-------------------------|
-|![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_SF.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/Invpend_SF_KF.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/State_feedback_ekf.gif)
+|![](https://github.com/KaranJagdale/controller_comparison/blob/master/result/Invpend_SF.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/result/Invpend_SF_KF.gif) | ![](https://github.com/KaranJagdale/controller_comparison/blob/master/result/State_feedback_ekf.gif)
 
 
 
