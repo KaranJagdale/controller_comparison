@@ -2,44 +2,51 @@ import numpy as np
 import scipy as sc
 import matplotlib.pyplot as plt
 import random
-class massSpringDamper():
+class MassSpringDamper():
+  '''class to implement modified double mass spring
+  Args:
+      m (float): mass 
+      c (float): force constant
+      k (float): spring st_iffness
+  Returns:
+      mass spring object
+  '''
   def __init__(self, m, c, k):
     self.m, self.c, self.k = m,c,k
 
-  def dyn(self, y, t, u):
+  def dy_n(self, y, t, u):
     x,v = y
     dydt = [v, u - (self.c/self.m)*v - (self.k/self.m)*x]
     return dydt
 
   def input(self, y, t):
-    #define necessary constants for the inout here
-    f = 1
+    #define necessary constants for the input here
     w = 6.28
     u = np.cos(w*t)
     return u
 
   #simulate method can be used if the input can be pre-defined (non-state feedback based) 
-  def simulate(self, tI, tF, yI): 
-    tSamp = 0.05 #sampling time 
-    yC = yI
-    xA = [yC[0]]
-    vA = [yC[1]]
-    tGrid = np.arange(tI, tF, tSamp)
-    for t in tGrid[1:len(tGrid)]:
+  def simulate(self, t_i, t_f, y_i): 
+    t_samp = 0.05 #sampling time 
+    y_c = y_i
+    x_a = [y_c[0]]
+    v_a = [y_c[1]]
+    t_grid = np.arange(t_i, t_f, t_samp)
+    for t in t_grid[1:len(t_grid)]:
       
-      u = self.input(yC, t)
-      yN = sc.integrate.odeint(self.dyn, yC, [t-tSamp,t], args=(u,))
+      u = self.input(y_c, t)
+      y_n = sc.integrate.odeint(self.dy_n, y_c, [t-t_samp,t], args=(u,))
       
-      xA.append(yN[yN.shape[0]-1,0])
-      vA.append(yN[yN.shape[0]-1,1])
-      yC = yN[yN.shape[0]-1,:]
+      x_a.append(y_n[y_n.shape[0]-1,0])
+      v_a.append(y_n[y_n.shape[0]-1,1])
+      y_c = y_n[y_n.shape[0]-1,:]
 
     plt.figure(1)
     plt.subplot(211)
-    plt.plot(tGrid, xA)
+    plt.plot(t_grid, x_a)
     plt.subplot(212)
-    plt.plot(tGrid, vA)
-    print(xA[0:10])
+    plt.plot(t_grid, v_a)
+    print(x_a[0:10])
 
 class InvertedPendulum:
     def __init__(self, m, l, g, k, isDisturbance, procNoiseCov, mesNoiseCov) -> None:
@@ -52,7 +59,7 @@ class InvertedPendulum:
     def thetaDDot(self, Theta, Tau):
         return 1.5*self.g/self.l*np.sin(Theta) - Tau*3/self.m/self.l**2
     
-    def DynSS(self, y, t,Tau,disturb, isPrint = False):
+    def Dy_nSS(self, y, t,Tau,disturb, isPrint = False):
         Theta, Omega = y
         # disturb = np.random.normal(0, self.procNoiseCov, 1)[0]
         # disturb = disturb*(self.isDisturbance * isDisturb)
@@ -78,7 +85,7 @@ class InvertedPendulum:
 
     def nextState(self, y,Tau, Ts, disturb = 0):
         y0 = y
-        sol = sc.integrate.odeint(self.DynSS, y0, [0, Ts], args=(Tau, disturb))
+        sol = sc.integrate.odeint(self.Dy_nSS, y0, [0, Ts], args=(Tau, disturb))
         return sol[1,:]
     
     def getDiscreteDynMatrix(self, Theta, sim_dt):
@@ -104,14 +111,14 @@ class DoubleMassSpringDamper():
 
         self.g = 9.86  
 
-    def DynSS(self, y, t, F):
+    def Dy_nSS(self, y, t, F):
         x1, x2, x1Dot, x2Dot = y
 
         dydt = np.dot(self.AMat, np.array(y).reshape(4,1)) + np.dot(self.BMat, F) + self.disturbance(y, t)
-        #print('from DynSS', 'a', np.dot(self.AMat, np.array(y).reshape(4,1)), 'b', np.dot(self.BMat, F), 'c', self.disturbance(y, t))
-        # print('from DynSS', 'BMat - ', self.BMat, 'F', F, 'b', np.dot(self.BMat, F))
+        #print('from Dy_nSS', 'a', np.dot(self.AMat, np.array(y).reshape(4,1)), 'b', np.dot(self.BMat, F), 'c', self.disturbance(y, t))
+        # print('from Dy_nSS', 'BMat - ', self.BMat, 'F', F, 'b', np.dot(self.BMat, F))
         # print('dydt',dydt)
-        # print('DynSS over')
+        # print('Dy_nSS over')
         dydt = dydt.reshape(1,4).tolist()
         return dydt[0]
 
@@ -126,7 +133,7 @@ class DoubleMassSpringDamper():
 
     def nextState(self, y, F, Ts):
         y0 = y
-        sol = sc.integrate.odeint(self.DynSS, y0, [0, Ts], args=(F,))
+        sol = sc.integrate.odeint(self.Dy_nSS, y0, [0, Ts], args=(F,))
         return sol[1,:]    
 
        
